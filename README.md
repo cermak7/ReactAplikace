@@ -11,7 +11,7 @@ Projekt je zpracováván v pětičlenném týmu. Každý člen je hodnocen za kv
 | **[Čermák]** | GIT Master | Koordinace práce, správa GIT repozitáře, code review, komunikace s vyučujícími a odpovědnost za finální odevzdání. |
 | **[Buzek]** | Vývojář | **Úkol 1:** Předělat zobrazení kontaktů, schůzek a akcí pomocí React Routing (zrušení plovoucích vrstev/modálů). |
 | **[Berger]** | Vývojář | **Úkol 2:** Oprava chyby v zasílání – zajištění správného překreslení tabulky při druhém uložení stavu (data se ukládají, ale UI nereaguje). |
-| **[Hron]** | Vývojář | **Úkol 3:** Refaktoring tabulek – vytvoření znovupoužitelné komponenty Tabulka (s funkcemi dle sekce firem) a její implementace napříč kódem. |
+| **[Matej]** | Vývojář | **Úkol 3:** Refaktoring tabulek – vytvoření znovupoužitelné komponenty Tabulka (s funkcemi dle sekce firem) a její implementace napříč kódem. |
 | **[Karabáček]** | Vývojář | **Úkol 4 + Migrace:** Identifikace a smazání nepoužívaných komponent/souborů. Převedení projektu z Webpacku na Vite. |
 
 ---
