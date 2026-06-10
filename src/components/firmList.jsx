@@ -18,7 +18,7 @@ import { useUrl } from './UrlProvider';
 import WorkshopList from './workshoplist';
 import { setCookie, getCookie } from '../utils/cookie';
 import useIsSmall from '../utils/mobileDetect';
-import Table from './Table'; // <-- Import nové komponenty
+import Table from './Table'; 
 
 const getFirstPart = (text) => {
   const parts = text?.split(/\/\(kont\)/) ?? [];
@@ -265,6 +265,11 @@ const FirmList = () => {
     setSelectedMeet(id);
   };
 
+  const handleCVClick = (id) => {
+    // Případná navigace nebo akce pro CV tlačítko
+    navigate(`/practiceListTable/${id}`); 
+  };
+
   const deleteFirm = async (firmId) => {
     try {
       const response = await axios.delete(`${apiUrl}firms/${firmId}`);
@@ -360,10 +365,9 @@ const FirmList = () => {
     );
   }
 
-  // Extrakce čistých datových sloupců z API
   const apiColumns = data.length !== 0 ? Object.keys(data[0]) : [];
 
-  // --- Sestavení dynamické konfigurace pro naši Table komponentu ---
+  // Konfigurace sloupců pro Table.jsx
   const tableColumns = [
     {
       key: 'selection',
@@ -419,6 +423,7 @@ const FirmList = () => {
           <button type="button" onClick={() => handleEditEventClick(row.id, row.name)} className="green-btn">Událost</button>
           <button type="button" onClick={() => handleGiftlistClick(row.id, row.name)} className="orange-btn">Dary</button>
           <button type="button" onClick={() => handlePracticeListClick(row.id, row.name)} className="purple-btn">Praxe</button>
+          <button type="button" onClick={() => handleCVClick(row.id)} className="cv-btn">CV</button> {/* <-- Nové tlačítko podle screenshotu */}
           {user.user !== 'reader' && (
             <button type="button" onClick={() => handledelClick(row.id)} className="del-btn">Smazat</button>
           )}
@@ -485,6 +490,7 @@ const FirmList = () => {
             className={`firmlist responsive-table ${isWrapped ? 'wrap-cells' : 'nowrap-cells'}`}
             caption={data.length === 0 ? undefined : <caption>{data.length} záznamů</caption>}
             rowIdPattern={(row) => `row-${row.name?.charAt(0).toLowerCase()}`}
+            rowClassNamePattern={(row) => selectedIds.has(Number(row.id)) ? 'selected-row' : ''} // <-- Vybraný řádek zmodrá (propojení s CSS)
             sortConfig={sortConfig}
             onSort={sortByKey}
             getSortIcon={getSortIcon}

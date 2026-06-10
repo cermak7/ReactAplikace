@@ -7,6 +7,7 @@ const Table = ({
   caption,
   className = '',
   rowIdPattern,
+  rowClassNamePattern, // <-- Novinka pro stylování vybraného řádku
   sortConfig,
   onSort,
   getSortIcon,
@@ -45,8 +46,14 @@ const Table = ({
       <tbody>
         {data.map((row, rowIndex) => {
           const rowId = rowIdPattern ? rowIdPattern(row, rowIndex) : undefined;
+          
+          // Sestavení tříd pro celý řádek (přidá např. 'selected-row' pokud je vybráno)
+          const rowClass = [
+            rowClassNamePattern ? rowClassNamePattern(row, rowIndex) : '',
+          ].filter(Boolean).join(' ');
+
           return (
-            <tr key={row.id || rowIndex} id={rowId}>
+            <tr key={row.id || rowIndex} id={rowId} className={rowClass}>
               {columns.map((col) => {
                 if (col.hidden) return null;
 
@@ -94,6 +101,7 @@ Table.propTypes = {
   caption: PropTypes.node,
   className: PropTypes.string,
   rowIdPattern: PropTypes.func,
+  rowClassNamePattern: PropTypes.func,
   sortConfig: PropTypes.shape({
     key: PropTypes.string,
     direction: PropTypes.string,

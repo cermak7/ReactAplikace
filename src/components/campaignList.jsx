@@ -6,6 +6,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUrl } from './UrlProvider';
 import isSmall from '../utils/mobileDetect';
+import Table from './Table';
 
 const getFirstPart = (text) => {
   const parts = text?.split(/\/\(kont\)/) || [];
@@ -26,19 +27,15 @@ const CampaignList = () => {
 
   useEffect(() => {
     const fetchContacts = async () => {
-      console.log('fetchContacts');
-
       try {
         const response = await axios.get(`${apiUrl}/campaigns/`);
         if (Array.isArray(response.data) && response.data.length === 0
           && response.data.msg !== undefined) {
           setError('Žádné kontakty.');
         } else {
-          console.log(response.data);
           setCampaigns(response.data);
         }
       } catch (err) {
-        console.log(err);
         setError(err.message);
       } finally {
         setLoading(false);
@@ -51,11 +48,11 @@ const CampaignList = () => {
   const handleEditClick = (campaign) => {
     navigate(`/campaignAdd/${campaign.id}`);
   };
+
   const deleteCampaign = async (firmId) => {
     try {
       const response = await axios.delete(`${apiUrl}campaign/${firmId}`);
       if (response.status === 200) {
-        // fetchData();
         setCampaigns((prevFirm) => prevFirm.filter((firm) => firm.id !== firmId));
       } else {
         setError('Smazání kontaktu selhalo');
@@ -66,12 +63,14 @@ const CampaignList = () => {
       setLoading(false);
     }
   };
+
   const handleDelClick = (id) => {
     const confirmed = window.confirm('Chceš to fakt vymazat?');
     if (confirmed) {
       deleteCampaign(id);
     }
   };
+
   const handleClick = (id) => {
     navigate(`/getCampaignContacts/${id}`);
   };
@@ -80,76 +79,67 @@ const CampaignList = () => {
     return <p className="no-data">Načítám...</p>;
   }
   if (error) {
-    return (
-      <p className="no-data">
-        Error:
-        {error}
-      </p>
-    );
+    return <p className="no-data">Error: {error}</p>;
   }
+
+  // Definice struktury a chování sloupců pro novou komponentu Table
+  const tableColumns = [
+    {
+      key: 'id',
+      label: (
+        <>
+          ID{' '}
+          <span
+            onClick={(e) => {
+              e.stopPropagation(); // Zabránit prokliknutí řádku při přepínání wrapu
+              toggleWrap();
+            }}
+            style={{ cursor: 'pointer', fontSize: '1.2em', paddingLeft: '1em' }}
+            title="Přepnout zalamování textu"
+          >
+            🔁
+          </span>
+        </>
+      ),
+    },
+    {
+      key: 'name',
+      label: 'Název',
+      onCellClick: (row) => handleClick(row.id),
+      render: (val) => getFirstPart(val),
+    },
+    { key: 'created_date', label: 'Datum Vytvoření' },
+    { key: 'sent_date_time', label: 'Datum odeslání' },
+    { key: 'end_date', label: 'Datum ukončení' },
+    { key: 'recipient_count', label: 'Počet adresátů (firem)' },
+    { key: 'undelivered_count', label: 'Počet nedoručení' },
+    { key: 'confirmed_received_count', label: 'Počet potvrzení o doručení' },
+    { key: 'replied_count', label: 'Odpovědělo' },
+    { key: 'note', label: 'Poznámka' },
+    {
+      key: 'actions',
+      label: '',
+      render: (val, campaign) => {
+        if (user.user === 'reader') return null;
+        return (
+          <div className={isSmall() ? 'small-resolution' : ''}>
+            <button type="button" onClick={() => handleEditClick(campaign)}>upravit</button>
+            <button type="button" onClick={() => handleDelClick(campaign.id)} className="del-btn">smazat</button>
+            <a href={`${apiUrl}campaignExport/${campaign.id}/?csvexport`} id="csv_export">CSV export</a>
+          </div>
+        );
+      },
+    },
+  ];
 
   return (
     <div>
       <h1>Zasílání</h1>
-      <table className={`responsive-table ${isWrapped ? 'wrap-cells' : 'nowrap-cells'}`}>
-        <thead>
-          <tr>
-            <th>
-              ID
-              <span
-                onClick={toggleWrap}
-                style={{ cursor: 'pointer', fontSize: '1.2em, padding-left:1em' }}
-                title="Přepnout zalamování textu"
-              >
-                🔁
-              </span>
-            </th>
-            <th>Název</th>
-            <th>Datum Vytvoření</th>
-            <th>Datum odeslání</th>
-            <th>Datum ukončení</th>
-            <th>Počet adresátů (firem)</th>
-            <th>Počet nedoručení</th>
-            <th>Počet potvrzení o doručení</th>
-            <th>Odpovědělo</th>
-            <th>Poznámka</th>
-            <th />
-          </tr>
-        </thead>
-        <tbody>
-          {campaigns.map((campaign) => (
-            <tr key={campaign.id}>
-              <td>{campaign.id}</td>
-              <td
-                onClick={() => handleClick(campaign.id)}
-              >
-                {getFirstPart(campaign.name)}
-              </td>
-              <td>{campaign.created_date}</td>
-              <td>{campaign.sent_date_time}</td>
-              <td>{campaign.end_date}</td>
-              <td>{campaign.recipient_count}</td>
-              <td>{campaign.undelivered_count}</td>
-              <td>{campaign.confirmed_received_count}</td>
-              <td>{campaign.replied_count}</td>
-              <td>{campaign.note}</td>
-              <td>
-                {user.user !== 'reader' ? (
-                  <div>
-                    <div className={isSmall() ? 'small-resolution' : ''}>
-                      <button type="button" onClick={() => handleEditClick(campaign)}>upravit</button>
-                      <button type="button" onClick={() => handleDelClick(campaign.id)} className="del-btn">smazat</button>
-                      <a href={`${apiUrl}campaignExport/${campaign.id}/?csvexport`} id="csv_export">CSV export</a>
-                    </div>
-                  </div>
-                ) : (
-                  ''
-                )}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <Table
+        columns={tableColumns}
+        data={campaigns}
+        className={`responsive-table ${isWrapped ? 'wrap-cells' : 'nowrap-cells'}`}
+      />
     </div>
   );
 };
