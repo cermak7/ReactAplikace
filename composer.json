@@ -1,6 +1,0 @@
-{
-    "require": {
-        "guzzlehttp/guzzle": "^7.9",
-        "webklex/php-imap": "^6.2"
-    }
-}
